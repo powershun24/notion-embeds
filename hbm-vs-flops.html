@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HBM 容量 vs FP8 算力對照</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    background: transparent;
+    color: #3d3d3a;
+    padding: 16px;
+  }
+  .wrap {
+    max-width: 100%;
+    margin: 0 auto;
+  }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    color: #73726c;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .legend-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    display: inline-block;
+  }
+  .chart-container {
+    position: relative;
+    width: 100%;
+    height: 360px;
+  }
+  .caption {
+    margin-top: 12px;
+    font-size: 12px;
+    color: #888780;
+    line-height: 1.6;
+  }
+  @media (prefers-color-scheme: dark) {
+    html, body { color: #e8e6dd; }
+    .legend { color: #b4b2a9; }
+    .caption { color: #888780; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="legend">
+    <span class="legend-item"><span class="legend-swatch" style="background:#3266ad;"></span>HBM 容量 (GB)</span>
+    <span class="legend-item"><span class="legend-swatch" style="background:#D85A30;"></span>FP8 算力 (PFLOPS)</span>
+  </div>
+  <div class="chart-container">
+    <canvas id="hbmChart" role="img" aria-label="比較主流 AI 加速器的 HBM 容量與 FP8 算力">A100 到 MI355X 與 Trainium3 的 HBM 容量與 FP8 算力對照圖</canvas>
+  </div>
+  <p class="caption">資料來源:各廠商官方規格頁面。A100 未公開 FP8 算力(Hopper 世代才引入 FP8)。</p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+  const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const textColor = isDark ? '#e8e6dd' : '#3d3d3a';
+  const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+
+  new Chart(document.getElementById('hbmChart'), {
+    type: 'bar',
+    data: {
+      labels: ['A100 (2020)', 'H100 (2022)', 'H200 (2024)', 'B200 (2024)', 'MI300X (2023)', 'MI355X (2026)', 'Trainium3 (2026)'],
+      datasets: [
+        {
+          label: 'HBM (GB)',
+          data: [80, 80, 141, 180, 192, 288, 144],
+          backgroundColor: '#3266ad',
+          yAxisID: 'y',
+          borderRadius: 4
+        },
+        {
+          label: 'FP8 PFLOPS',
+          data: [null, 4.0, 4.0, 9.0, 2.6, 10.1, 2.5],
+          backgroundColor: '#D85A30',
+          yAxisID: 'y1',
+          borderRadius: 4
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: isDark ? '#2C2C2A' : '#ffffff',
+          titleColor: textColor,
+          bodyColor: textColor,
+          borderColor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.15)',
+          borderWidth: 1,
+          padding: 10,
+          callbacks: {
+            label: function(ctx) {
+              const label = ctx.dataset.label || '';
+              const val = ctx.parsed.y;
+              if (val === null) return label + ': 未公開';
+              if (label.includes('HBM')) return label + ': ' + val + ' GB';
+              return label + ': ' + val.toFixed(1) + ' PFLOPS';
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          type: 'linear',
+          position: 'left',
+          title: { display: true, text: 'HBM 容量 (GB)', color: textColor, font: { size: 12 } },
+          beginAtZero: true,
+          max: 320,
+          ticks: { color: textColor, callback: (v) => Math.round(v) + ' GB' },
+          grid: { color: gridColor }
+        },
+        y1: {
+          type: 'linear',
+          position: 'right',
+          title: { display: true, text: 'FP8 算力 (PFLOPS)', color: textColor, font: { size: 12 } },
+          beginAtZero: true,
+          max: 12,
+          grid: { drawOnChartArea: false },
+          ticks: { color: textColor, callback: (v) => v.toFixed(1) }
+        },
+        x: {
+          ticks: {
+            color: textColor,
+            maxRotation: 45,
+            minRotation: 30,
+            autoSkip: false,
+            font: { size: 11 }
+          },
+          grid: { color: gridColor }
+        }
+      }
+    }
+  });
+</script>
+</body>
+</html>
