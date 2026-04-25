@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hostinger 架站雙 AI 工作流</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    background: #FFF1E5;
+    color: #33302E;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .container {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 56px 32px 80px;
+  }
+
+  .header {
+    border-bottom: 1px solid #33302E;
+    padding-bottom: 18px;
+    margin-bottom: 24px;
+  }
+
+  .title {
+    font-family: Georgia, "PingFang TC", "Microsoft JhengHei", serif;
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin-bottom: 6px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: #66605C;
+  }
+
+  .legend {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    align-items: center;
+    font-size: 13px;
+  }
+
+  .legend-label { color: #66605C; }
+
+  .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    display: inline-block;
+  }
+
+  .step {
+    display: grid;
+    grid-template-columns: 36px 1fr 70px 70px;
+    gap: 16px;
+    padding: 14px 0;
+    border-top: 0.5px solid rgba(51, 48, 46, 0.2);
+    align-items: start;
+  }
+
+  .step.with-border {
+    border-left: 3px solid;
+    padding-left: 14px;
+    margin-left: -17px;
+  }
+
+  .step.claude { border-left-color: #990F3D; }
+  .step.gpt { border-left-color: #0D7680; }
+
+  .num {
+    font-size: 14px;
+    font-weight: 500;
+    padding-top: 2px;
+  }
+  .num.claude { color: #990F3D; }
+  .num.gpt { color: #0D7680; }
+  .num.both { color: #66605C; }
+
+  .step-title {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .step-desc {
+    font-size: 13px;
+    color: #66605C;
+    line-height: 1.7;
+    margin-bottom: 6px;
+  }
+
+  .warning {
+    display: inline-block;
+    font-size: 12px;
+    color: #990F3D;
+    font-weight: 500;
+    margin-top: 2px;
+  }
+
+  .ai-tag {
+    font-size: 12px;
+    font-weight: 500;
+    padding-top: 2px;
+  }
+  .ai-tag.claude { color: #990F3D; }
+  .ai-tag.gpt { color: #0D7680; }
+  .ai-tag.both { color: #66605C; }
+
+  .time {
+    font-size: 12px;
+    color: #66605C;
+    text-align: right;
+    padding-top: 2px;
+  }
+
+  .crosscheck {
+    background: #33302E;
+    border-radius: 4px;
+    padding: 16px 18px;
+    margin: 12px 0;
+    display: grid;
+    grid-template-columns: 36px 1fr 70px 70px;
+    gap: 16px;
+  }
+
+  .crosscheck .num { color: #FFF1E5; font-size: 14px; }
+  .crosscheck .step-title { color: #FFF1E5; }
+  .crosscheck .step-desc { color: #B8A89A; }
+  .crosscheck .ai-tag { color: #FFF1E5; }
+  .crosscheck .time { color: #B8A89A; }
+
+  .footer {
+    border-top: 1px solid #33302E;
+    margin-top: 28px;
+    padding-top: 18px;
+  }
+
+  .footer p {
+    font-size: 13px;
+    color: #66605C;
+    line-height: 1.8;
+    margin-bottom: 6px;
+  }
+
+  .footer p strong {
+    color: #33302E;
+    font-weight: 500;
+  }
+
+  @media (max-width: 600px) {
+    .container { padding: 32px 20px 48px; }
+    .title { font-size: 24px; }
+    .step, .crosscheck {
+      grid-template-columns: 28px 1fr;
+      gap: 12px;
+    }
+    .step .ai-tag, .step .time,
+    .crosscheck .ai-tag, .crosscheck .time {
+      grid-column: 2;
+      display: inline-block;
+      margin-right: 12px;
+      padding-top: 0;
+    }
+    .step .ai-tag, .crosscheck .ai-tag { text-align: left; }
+    .step .time, .crosscheck .time { text-align: left; }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    html, body {
+      background: #FFF1E5;
+      color: #33302E;
+    }
+  }
+
+  @media print {
+    .container { padding: 24px; max-width: 100%; }
+    .step, .crosscheck { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <h1 class="title">Hostinger 架站雙 AI 工作流</h1>
+    <p class="subtitle">差距大才分工 · 差不多就不要換 · 只在關鍵節點交叉檢查</p>
+  </div>
+
+  <div class="legend">
+    <span class="legend-label">圖例</span>
+    <span class="legend-item"><span class="swatch" style="background:#990F3D"></span><span>Claude</span></span>
+    <span class="legend-item"><span class="swatch" style="background:#0D7680"></span><span>ChatGPT</span></span>
+    <span class="legend-item"><span class="swatch" style="background:#B8A89A"></span><span>兩邊都行</span></span>
+    <span class="legend-item"><span style="color:#990F3D;font-weight:500">!</span><span>地雷警告</span></span>
+  </div>
+
+  <div class="step">
+    <span class="num both">1</span>
+    <div>
+      <div class="step-title">規劃網站定位與架構</div>
+      <div class="step-desc">先回答 5 題:番茄品種、目標客群、主 CTA、信任元素、未來電商可能性。產出頁面清單與資訊層級。</div>
+    </div>
+    <span class="ai-tag both">C / G</span>
+    <span class="time">30 分</span>
+  </div>
+
+  <div class="step with-border claude">
+    <span class="num claude">2</span>
+    <div>
+      <div class="step-title">買網域(獨立於主機)</div>
+      <div class="step-desc">建議 Cloudflare Registrar 或 Namecheap,降低未來搬家阻力。</div>
+      <div class="warning">! 網域跟主機分開買,搬家成本最低</div>
+    </div>
+    <span class="ai-tag claude">C</span>
+    <span class="time">15 分</span>
+  </div>
+
+  <div class="step with-border claude">
+    <span class="num claude">3</span>
+    <div>
+      <div class="step-title">買 Hostinger Business</div>
+      <div class="step-desc">綁 24 個月、選新加坡機房。記得到後台關閉自動續約改提醒。</div>
+      <div class="warning">! 切換 USD 計價可能比 CNY 便宜,結帳前比對</div>
+    </div>
+    <span class="ai-tag claude">C</span>
+    <span class="time">15 分</span>
+  </div>
+
+  <div class="step with-border claude">
+    <span class="num claude">4</span>
+    <div>
+      <div class="step-title">DNS 指向、SSL、安裝 WordPress</div>
+      <div class="step-desc">在網域註冊商把 nameserver 指到 Hostinger,等 1–24 小時生效。SSL 自動申請,WordPress 一鍵安裝。</div>
+      <div class="warning">! 千萬不要用 Hostinger Builder,要選自架 WordPress</div>
+    </div>
+    <span class="ai-tag claude">C</span>
+    <span class="time">1 小時</span>
+  </div>
+
+  <div class="step with-border claude">
+    <span class="num claude">5</span>
+    <div>
+      <div class="step-title">WordPress 基本設定</div>
+      <div class="step-desc">固定網址結構選「文章名稱」、時區改台北、語系繁中、刪除預設文章。先別裝外掛,等選完佈景主題再說。</div>
+    </div>
+    <span class="ai-tag claude">C</span>
+    <span class="time">30 分</span>
+  </div>
+
+  <div class="step with-border claude">
+    <span class="num claude">6</span>
+    <div>
+      <div class="step-title">視覺設計方向 + mockup</div>
+      <div class="step-desc">Claude 給 3 個方向草稿(樸實職人、現代精緻、明亮活潑),你拍板。同時建立配色、字體、圖片風格的視覺指南文件。</div>
+      <div class="warning">! mockup 要可落地到 WordPress,別設計太花俏的動畫互動</div>
+    </div>
+    <span class="ai-tag claude">C</span>
+    <span class="time">1 小時</span>
+  </div>
+
+  <div class="step">
+    <span class="num both">7</span>
+    <div>
+      <div class="step-title">選佈景主題與必要外掛</div>
+      <div class="step-desc">主題建議 GeneratePress / Kadence / Blocksy 三選一。外掛清單:UpdraftPlus(備份)、Rank Math(SEO)、Wordfence(安全)、WP Rocket 或 LiteSpeed Cache(快取)。</div>
+      <div class="warning">! 外掛少而精,新手最常裝太多導致網站變慢</div>
+    </div>
+    <span class="ai-tag both">C / G</span>
+    <span class="time">45 分</span>
+  </div>
+
+  <div class="step with-border gpt">
+    <span class="num gpt">8</span>
+    <div>
+      <div class="step-title">SEO 關鍵字研究</div>
+      <div class="step-desc">ChatGPT 用 web 搜尋找台灣番茄相關關鍵字、競品分析、消費者搜尋意圖。產出主關鍵字 + 長尾關鍵字清單。</div>
+    </div>
+    <span class="ai-tag gpt">G</span>
+    <span class="time">30 分</span>
+  </div>
+
+  <div class="step">
+    <span class="num both">9</span>
+    <div>
+      <div class="step-title">文案撰寫</div>
+      <div class="step-desc">首頁、關於、產品介紹同一邊寫完,不中途換 AI。把第 8 步的關鍵字自然融入,不硬塞。</div>
+      <div class="warning">! 避免 AI 味:過多形容詞、排比句、結尾總結癖</div>
+    </div>
+    <span class="ai-tag both">C / G</span>
+    <span class="time">2 小時</span>
+  </div>
+
+  <div class="crosscheck">
+    <span class="num">★</span>
+    <div>
+      <div class="step-title">交叉檢查 A:文案最終版</div>
+      <div class="step-desc">把第 9 步的稿丟給另一個 AI,prompt 要求挑問題:空泛、AI 味、消費者視角、行動呼籲是否清楚。整合修改成 v2。</div>
+    </div>
+    <span class="ai-tag">交叉</span>
+    <span class="time">30 分</span>
+  </div>
+
+  <div class="step with-border gpt">
+    <span class="num gpt">10</span>
+    <div>
+      <div class="step-title">圖片生成與處理</div>
+      <div class="step-desc">Claude 寫 prompt → ChatGPT 生圖 → Squoosh 壓縮 → 命名(英文-連字-描述.webp)→ 上傳。各圖風格要對齊視覺指南。</div>
+      <div class="warning">! 圖片不要塞中文字,中文字 AI 會畫錯</div>
+    </div>
+    <span class="ai-tag gpt">G</span>
+    <span class="time">1.5 小時</span>
+  </div>
+
+  <div class="step">
+    <span class="num both">11</span>
+    <div>
+      <div class="step-title">後台實作:組頁面</div>
+      <div class="step-desc">用 Gutenberg(內建)或佈景主題自帶的編輯器組首頁、關於、產品頁、聯絡頁。設定主選單、頁尾。延續第 4 步同一邊 AI。</div>
+    </div>
+    <span class="ai-tag both">C / G</span>
+    <span class="time">3 小時</span>
+  </div>
+
+  <div class="step">
+    <span class="num both">12</span>
+    <div>
+      <div class="step-title">SEO 與分析設定</div>
+      <div class="step-desc">Rank Math 設定 meta title、description、結構化資料。串接 Google Search Console、Analytics 4、Bing Webmaster。提交 sitemap。</div>
+    </div>
+    <span class="ai-tag both">C / G</span>
+    <span class="time">45 分</span>
+  </div>
+
+  <div class="crosscheck">
+    <span class="num">★</span>
+    <div>
+      <div class="step-title">交叉檢查 B:上線前 QA</div>
+      <div class="step-desc">一邊列檢查清單(SSL、備份、表單測試、行動版、速度 PageSpeed、SEO meta、404 頁、連結是否正確),另一邊找漏項。實際打開手機測一遍。</div>
+    </div>
+    <span class="ai-tag">交叉</span>
+    <span class="time">45 分</span>
+  </div>
+
+  <div class="step with-border claude">
+    <span class="num claude">13</span>
+    <div>
+      <div class="step-title">上線</div>
+      <div class="step-desc">關閉「搜尋引擎可見性」勾選、發第一篇正式文章、提交 sitemap 給 Google、做完整備份存到 Google Drive。</div>
+    </div>
+    <span class="ai-tag claude">C</span>
+    <span class="time">15 分</span>
+  </div>
+
+  <div class="step">
+    <span class="num both">∞</span>
+    <div>
+      <div class="step-title">維運與更新</div>
+      <div class="step-desc">每月手動備份一次到 Google Drive、檢查外掛更新、看 Search Console 有無錯誤。內容更新看性質決定 AI。</div>
+    </div>
+    <span class="ai-tag both">C / G</span>
+    <span class="time">月度</span>
+  </div>
+
+  <div class="footer">
+    <p><strong>總時間估算</strong>:約 13 小時。建議分 3 個週末:第一週 1–7(基礎建設)、第二週 8–11(內容與設計)、第三週 12–13(SEO 與上線)。</p>
+    <p><strong>三大原則</strong>:差距大才分工(只 4 處強制)・差不多就不要換(連續性最重要)・只在文案定稿與上線前交叉檢查(避免決策疲勞)</p>
+  </div>
+
+</div>
+
+</body>
+</html>
